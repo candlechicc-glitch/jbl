@@ -3,6 +3,7 @@ import os
 import secrets
 import random
 from functools import wraps
+from auth import send_sms_fast2sms
 
 from flask import Blueprint, request, jsonify, g
 
@@ -94,18 +95,8 @@ def api_send_otp():
     otp = str(random.randint(100000, 999999))
     save_otp(phone, otp)
 
-    if twilio_client and TWILIO_PHONE:
-        try:
-            twilio_client.messages.create(
-                body=f"Your OTP is {otp}. Valid for 5 minutes.",
-                from_=TWILIO_PHONE, to=phone,
-            )
-            print(f"[twilio] OTP sent to {phone}")
-        except Exception as e:
-            print(f"[twilio] FAILED: {e}")
-            return jsonify(success=False, message="Failed to send OTP"), 500
-    else:
-        print(f"[DEV] OTP for {phone}: {otp}")
+    if not send_sms_fast2sms(phone, otp):
+        return jsonify(success=False, message="Failed to send OTP"), 500
 
     return jsonify(success=True)
 
