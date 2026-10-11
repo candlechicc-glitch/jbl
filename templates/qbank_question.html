@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ topic.name }} — {{ category.label }} — QBank</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='qbank_question.css') }}">
+</head>
+<body>
+
+  <a href="/qbank/subjects/{{ topic.subject_id }}/topics?cats={{ selected_cats|join(',') }}"
+     class="back-link"
+     onclick="event.preventDefault(); if (window.history.length > 1) { window.history.back(); } else { window.location.href = this.href; }">
+    ← Back
+  </a>
+
+  <h1>{{ topic.name }}</h1>
+  <p class="breadcrumb">
+    {{ category.label }}
+    {% if review_mode %} · Review mode{% endif %}
+  </p>
+
+  {% if not questions %}
+    <p class="empty">No questions in this category yet.</p>
+  {% else %}
+
+  <label class="reveal-toggle">
+    <input type="checkbox" id="reveal-all">
+    Show answers automatically
+  </label>
+
+  <div id="qroot"
+       data-total="{{ questions|length }}"
+       data-review="{{ '1' if review_mode else '0' }}"
+       data-topic-id="{{ topic.id }}"
+       data-category-id="{{ category.id }}"
+       data-subject-id="{{ topic.subject_id }}"
+       data-cats="{{ selected_cats|join(',') }}"
+       data-complete-url="/qbank/topics/{{ topic.id }}/categories/{{ category.id }}/complete">
+
+    {% for q in questions %}
+      <div class="qcard"
+           data-index="{{ loop.index0 }}"
+           data-qid="{{ q.id }}"
+           {% if not loop.first %}hidden{% endif %}>
+
+        <div class="qmeta">
+          Question {{ loop.index }} of {{ questions|length }}
+          <button class="bookmark-btn"
+                  data-qid="{{ q.id }}"
+                  type="button">
+            {% if q.id in bookmarks %}⭐{% else %}☆{% endif %}
+          </button>
+        </div>
+
+        <div class="qtext">{{ q.text }}</div>
+        {% if q.image_path %}
+          <img class="qimage" src="/static/uploads/{{ q.image_path }}" alt="">
+        {% endif %}
+
+        <div class="answer hidden" id="ans-{{ loop.index0 }}">
+          <strong>Answer:</strong>
+          <div>{{ q.answer }}</div>
+          {% if q.answer_image_path %}
+            <img class="qimage" src="/static/uploads/{{ q.answer_image_path }}" alt="">
+          {% endif %}
+        </div>
+
+        <div class="btnrow">
+          <button class="btn show-answer-btn" type="button"
+                  data-index="{{ loop.index0 }}">Show answer</button>
+        </div>
+
+        <div class="notes-block">
+          <textarea class="notes-input"
+                    id="notes-{{ loop.index0 }}"
+                    placeholder="Your notes for this question...">{{ notes.get(q.id, '') }}</textarea>
+          <div class="btnrow">
+            <button class="btn btn-primary save-notes-btn"
+                    type="button"
+                    data-qid="{{ q.id }}"
+                    data-index="{{ loop.index0 }}">Save notes</button>
+            <span class="save-status" id="save-status-{{ loop.index0 }}"></span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="nav">
+      <button class="btn" id="prev-btn" type="button">← Previous</button>
+      <button class="btn btn-primary" id="next-btn" type="button">Next →</button>
+    </div>
+  </div>
+
+  {% endif %}
+
+  <!-- Complete Section dialog -->
+  <div class="modal-overlay" id="complete-modal" hidden>
+    <div class="modal">
+      <h3>Section complete</h3>
+      <p>What would you like to do next?</p>
+      <div class="modal-actions">
+        <button class="btn" id="cancel-complete" type="button">Cancel</button>
+        <button class="btn" id="stay-complete" type="button">Stay on this topic</button>
+        <button class="btn btn-primary" id="next-complete" type="button">Move to next section</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='qbank_question.js') }}"></script>
+</body>
+</html>

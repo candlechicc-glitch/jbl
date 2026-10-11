@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>My Bookmarks</title></head>
+<body>
+  <h1>My Bookmarks</h1>
+  <p><a href="/home">← Back to home</a></p>
+
+  {% if not subjects %}
+    <p>No bookmarks yet.</p>
+  {% endif %}
+
+  {% for subject in subjects %}
+    <div style="border:1px solid #ddd; padding:12px; margin:8px 0;">
+      <a href="/bookmarks/subject/{{ subject.subject_id }}">
+        <strong>{{ subject.subject_name }}</strong>
+      </a>
+      <p>{{ subject.goal_name }} • {{ subject.bookmark_count }} question{% if subject.bookmark_count != 1 %}s{% endif %}</p>
+    </div>
+  {% endfor %}
+</body>
+</html>

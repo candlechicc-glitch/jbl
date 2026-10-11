@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Plans</title>
+</head>
+<body>
+  <h1>Plans for {{ goal_name }}</h1>
+
+  <ul>
+    {% for plan in plans %}
+      <li>
+        {{ plan.name }} — {{ plan.duration_days }} days — {{ plan.price }} {{ plan.currency }}
+      </li>
+    {% endfor %}
+  </ul>
+
+  <a href="/">Back</a>
+</body>
+</html>

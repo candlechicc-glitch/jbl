@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ topic.name }} — Quiz</title>
+</head>
+<body>
+
+  <h1>{{ topic.name }}</h1>
+
+  <!-- Progress -->
+  <p>Question <strong id="progress">1</strong> of <strong>{{ questions|length }}</strong></p>
+
+  <!-- Top actions -->
+  <button onclick="toggleBookmark()" id="bookmark-btn">☆ Bookmark</button>
+  <button onclick="confirmExit()">Exit</button>
+
+  <hr>
+
+  <!-- Question -->
+  <h2 id="question-text"></h2>
+  <img id="question-image" style="display:none; max-width:400px;">
+
+  <!-- Options -->
+  <div id="options-container"></div>
+
+  <!-- Explanation -->
+  <div id="explanation-box" style="display:none;">
+    <hr>
+    <p><strong>Explanation:</strong></p>
+    <p id="explanation-text"></p>
+    <img id="explanation-image" style="display:none; max-width:400px;">
+  </div>
+
+  <hr>
+
+  <!-- Navigation -->
+  <button onclick="goPrev()" id="prev-btn">Previous</button>
+  <button onclick="goNext()" id="next-btn">Next</button>
+
+  <!-- Exit modal -->
+  <div id="exit-modal" style="display:none; border:1px solid #000; padding:16px; margin-top:16px;">
+    <p>Are you sure you want to exit?</p>
+    <button onclick="closeExit()">Cancel</button>
+    <a href="/home">Yes, exit</a>
+  </div>
+
+  <!-- Server data -->
+  <script>
+    const TOPIC_ID = {{ topic.id }};
+    const QUESTIONS = {{ questions | tojson }};
+    const PAST_ANSWERS = {{ past_answers | tojson }};
+    const START_INDEX = {{ start_index }};
+    const BOOKMARKED_IDS = {{ bookmarked_ids | tojson }};
+  </script>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/quiz.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Resume Test</title></head>
+<body>
+  <h1>Resume Test</h1>
+  <p><strong>{{ attempt.test_name }}</strong></p>
+  <p>Time remaining: <strong>{{ remaining_minutes }} minutes</strong></p>
+  <p>Questions: {{ attempt.total_questions }}</p>
+
+  <form method="POST" action="/tests/attempts/{{ attempt.id }}/questions" style="display:inline;">
+    <button type="submit">Resume Test</button>
+  </form>
+  <a href="/tests">Cancel</a>
+</body>
+</html>

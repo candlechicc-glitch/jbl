@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QBank</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; max-width: 700px; margin: auto; }
+    h1 { color: #175e7a; }
+    .goal { color: #666; margin-bottom: 24px; }
+    .subject-card {
+      border: 1px solid #ddd;
+      padding: 16px;
+      margin: 12px 0;
+      border-radius: 8px;
+      transition: box-shadow 0.15s;
+    }
+    .subject-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .subject-card a {
+      color: #175e7a;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .progress { color: #666; margin-top: 6px; font-size: 14px; }
+    .empty { color: #888; font-style: italic; }
+    .top-links { margin-bottom: 24px; }
+    .top-links a { color: #175e7a; margin-right: 16px; text-decoration: none; }
+    .top-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="top-links">
+    <a href="/home"
+    onclick="event.preventDefault(); window.location.replace(this.href);">
+   ← Home
+ </a>
+    <a href="/bookmarks">My Bookmarks</a>
+    <a href="/tests">📝 Take a Test</a>
+  </div>
+
+  <h1>QBank</h1>
+
+  {% if goal_name %}
+    <p class="goal">Goal: <strong>{{ goal_name }}</strong></p>
+
+    {% if subjects %}
+      {% for subject in subjects %}
+        <div class="subject-card">
+          <a href="/qbank/subjects/{{ subject.subject_id }}/topics">
+            {{ subject.subject_name }}
+          </a>
+          <div class="progress">
+            {{ subject.completed_topics }} / {{ subject.total_topics }} topics completed
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty">No QBank content available yet for {{ goal_name }}.</p>
+    {% endif %}
+
+  {% else %}
+    <p class="empty">
+      You haven't selected a goal yet.
+      <a href="/goals">Choose one now</a>.
+    </p>
+  {% endif %}
+
+</body>
+</html>

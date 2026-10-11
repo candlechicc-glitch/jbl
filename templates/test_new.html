@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>Start Test</title></head>
+<body>
+  <h1>{{ attempt.test_name }}</h1>
+  <p>Duration: <strong>{{ attempt.duration_minutes }} minutes</strong></p>
+  <p>Questions: <strong>{{ attempt.total_questions }}</strong></p>
+  <p>Total marks: <strong>{{ attempt.total_marks }}</strong></p>
+
+  <p>Once you click Start, the timer begins.</p>
+
+  <form method="POST" action="/tests/attempts/{{ attempt.id }}/questions" style="display:inline;">
+    <button type="submit">Start Test</button>
+  </form>
+  <a href="/tests">Cancel</a>
+</body>
+</html>

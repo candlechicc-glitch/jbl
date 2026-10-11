@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tests</title>
+</head>
+<body>
+  <h1>Tests</h1>
+
+  {% if not goal %}
+    <p>You haven't selected a goal yet. <a href="/goals">Choose one</a>.</p>
+  {% else %}
+    <p>Goal: <strong>{{ goal.name }}</strong></p>
+
+    {% if not tests %}
+      <p>No tests available yet.</p>
+    {% endif %}
+
+    {% for t in tests %}
+      <div style="border:1px solid #ddd; padding:12px; margin:8px 0; {% if t.locked %}background:#f8f8f8; color:#999;{% endif %}">
+        <div>
+          <strong>{{ t.name }}</strong>
+          {% if t.test_topic_name %}
+            <span style="color:#888;">({{ t.test_topic_name }})</span>
+          {% endif %}
+        </div>
+
+        <div style="font-size:14px; color:#666; margin-top:6px;">
+          {{ t.duration_minutes }} min • {{ t.total_marks }} marks • {{ t.access_level }}
+        </div>
+
+        <div style="margin-top:8px;">
+          {% if t.locked %}
+            🔒 <a href="/plans">Subscribe to unlock</a>
+          {% else %}
+            <form method="POST" action="/tests/{{ t.id }}/start" style="display:inline;">
+              <button type="submit">
+                {% if t.completed %}✅ View Review{% else %}▶️ Start Test{% endif %}
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+</body>
+</html>

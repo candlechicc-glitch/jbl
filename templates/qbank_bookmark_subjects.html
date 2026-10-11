@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QBank Bookmarks</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; max-width: 700px; margin: auto; }
+    h1 { color: #175e7a; }
+    .back { display: inline-block; margin-bottom: 24px; color: #175e7a; text-decoration: none; font-size: 14px; }
+    .back:hover { text-decoration: underline; }
+
+    .subject-card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 16px;
+      margin: 12px 0;
+      background: white;
+      transition: box-shadow 0.15s;
+    }
+    .subject-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .subject-card a {
+      color: #175e7a;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+    }
+    .meta { color: #666; margin-top: 6px; font-size: 14px; }
+    .empty { color: #888; font-style: italic; }
+  </style>
+</head>
+<body>
+
+  <a class="back" href="/qbank/home">← Back to QBank</a>
+
+  <h1>QBank Bookmarks</h1>
+
+  {% if not subjects %}
+    <p class="empty">No bookmarks yet. Bookmark questions while studying to see them here.</p>
+  {% endif %}
+
+  {% for subject in subjects %}
+    <div class="subject-card">
+      <a href="/qbank/bookmarks/subject/{{ subject.subject_id }}">
+        {{ subject.subject_name }}
+      </a>
+      <div class="meta">
+        {{ subject.goal_name }} · {{ subject.bookmark_count }}
+        question{% if subject.bookmark_count != 1 %}s{% endif %}
+      </div>
+    </div>
+  {% endfor %}
+
+</body>
+</html>

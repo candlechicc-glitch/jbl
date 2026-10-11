@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ topic.name }}</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 40px;
+      max-width: 600px;
+      margin: auto;
+      text-align: center;
+    }
+    h1 { color: #175e7a; margin-bottom: 8px; }
+    .goal { color: #888; font-size: 14px; margin-bottom: 24px; }
+    .info {
+      background: #f0f7fa;
+      padding: 24px;
+      border-radius: 12px;
+      margin: 24px 0;
+    }
+    .count {
+      font-size: 48px;
+      color: #175e7a;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .count-label {
+      color: #666;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .start-btn {
+      display: inline-block;
+      padding: 14px 40px;
+      background: #175e7a;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .start-btn:hover { background: #124a60; }
+    .back {
+      display: block;
+      margin-top: 24px;
+      color: #888;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>{{ topic.name }}</h1>
+  <p class="goal">Goal: {{ topic.goal_name }}</p>
+
+  <div class="info">
+    <div class="count">{{ question_count }}</div>
+    <div class="count-label">
+      question{% if question_count != 1 %}s{% endif %}
+    </div>
+  </div>
+
+  {% if question_count > 0 %}
+  <a href="/topics/{{ topic.id }}/start-quiz" class="start-btn">Start Quiz</a>
+  {% else %}
+    <p>No questions available yet for this topic.</p>
+  {% endif %}
+
+  <a href="/home" class="back">← Back to home</a>
+</body>
+</html>

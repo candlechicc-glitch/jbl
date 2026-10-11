@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ subject.name }} — QBank</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; max-width: 700px; margin: auto; }
+    h1 { color: #175e7a; margin-bottom: 4px; }
+    .breadcrumb { color: #888; font-size: 14px; margin-bottom: 24px; }
+
+    /* Filter chips */
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .chip {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: #f1f5f8;
+      color: #4a5568;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .chip.active {
+      background: #5ab4c5;
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Chapter */
+    .chapter {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+    }
+    .chapter h2 { color: #175e7a; margin: 0 0 12px 0; font-size: 18px; }
+
+    /* Topic */
+    .topic {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: white;
+    }
+    .topic.locked { background: #f8f8f8; color: #999; }
+
+    .topic-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #175e7a;
+      margin-bottom: 10px;
+    }
+    .topic-name .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-left: 8px;
+      text-transform: uppercase;
+      font-weight: normal;
+    }
+    .badge-free { background: #d4edda; color: #155724; }
+    .badge-paid { background: #fff3cd; color: #856404; }
+
+    /* Category row under a topic */
+    .cat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      margin: 6px 0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #1a202c;
+      background: #f9fbfc;
+      border: 1px solid #e2e8f0;
+      font-size: 15px;
+    }
+    .cat-row:hover { background: #eef7fa; }
+    .cat-row.completed { background: #e8f5e9; border-color: #b7e0b9; }
+    .cat-row.locked { background: #f5f5f5; color: #999; cursor: not-allowed; }
+    .check { color: #2e7d32; font-size: 18px; }
+    .arrow { color: #bbb; font-size: 14px; }
+
+    .back-link { display: inline-block; margin-top: 30px; color: #175e7a; }
+  </style>
+</head>
+<body>
+
+  <h1>{{ subject.name }}</h1>
+  <p class="breadcrumb">QBank · Goal: {{ subject.goal_name }}</p>
+
+  <!-- Filter chips -->
+  <div class="filters">
+    <button class="chip {% if selected_cats|length == all_categories|length %}active{% endif %}"
+            onclick="selectAllCats()"
+            type="button">
+      All
+    </button>
+    {% for cat in all_categories %}
+      <button class="chip {% if cat.id in selected_cats %}active{% endif %}"
+              onclick="toggleCat({{ cat.id }})"
+              type="button">
+        {{ cat.label }}
+      </button>
+    {% endfor %}
+  </div>
+
+  {% if not chapters %}
+    <p>No chapters available yet.</p>
+  {% endif %}
+
+  {% for chapter in chapters %}
+    <div class="chapter">
+      <h2>{{ chapter.name }}</h2>
+
+      {% if not chapter.topics %}
+        <p style="color:#888; font-size:14px;">No QBank topics yet in this chapter.</p>
+      {% endif %}
+
+      {% for topic in chapter.topics %}
+        <div class="topic {% if topic.locked %}locked{% endif %}">
+          <div class="topic-name">
+            {{ topic.name }}
+            <span class="badge badge-{{ topic.access_level }}">
+              {{ topic.access_level }}
+            </span>
+          </div>
+
+          {% if not topic.categories %}
+            <p style="color:#888; font-size:13px; margin: 6px 0 0;">No categories with questions.</p>
+          {% endif %}
+
+          {% for cat in topic.categories %}
+            {% if topic.locked %}
+              <div class="cat-row locked">
+                <span>{{ cat.label }}</span>
+                <span>🔒</span>
+              </div>
+            {% else %}
+              <a class="cat-row {% if cat.completed %}completed{% endif %}"
+                 href="/qbank/topics/{{ topic.id }}/categories/{{ cat.id }}/questions?cats={{ selected_cats|join(',') }}">
+                <span>{{ cat.label }}</span>
+                {% if cat.completed %}
+                  <span class="check">✓</span>
+                {% else %}
+                  <span class="arrow">›</span>
+                {% endif %}
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+
+  <a class="back-link" href="/qbank/home">← Back to QBank</a>
+
+  <script>
+    const ALL_CAT_IDS = {{ all_categories | map(attribute='id') | list | tojson }};
+    let selectedCats = {{ selected_cats | tojson }};
+
+    function toggleCat(id) {
+      const idx = selectedCats.indexOf(id);
+      if (idx >= 0) {
+        if (selectedCats.length === 1) return;
+        selectedCats.splice(idx, 1);
+      } else {
+        selectedCats.push(id);
+      }
+      applyFilter();
+    }
+
+    function selectAllCats() {
+      selectedCats = [...ALL_CAT_IDS];
+      applyFilter();
+    }
+
+    function applyFilter() {
+  const url = new URL(window.location.href);
+  url.searchParams.set('cats', selectedCats.join(','));
+  window.location.replace(url.toString());
+}
+  </script>
+
+</body>
+</html>

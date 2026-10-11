@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ attempt.test_name }} — Review</title>
+</head>
+<body>
+
+  <div style="display:flex; gap:20px; padding:20px;">
+
+    <!-- MAIN AREA -->
+    <div style="flex:1;">
+
+      <h1>{{ attempt.test_name }} — Review</h1>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <p>Question <strong id="progress">1</strong> of <strong id="total">0</strong></p>
+        <div>
+          <button onclick="goPrev()" id="prev-btn">← Previous</button>
+          <button onclick="goNext()" id="next-btn">Next →</button>
+        </div>
+      </div>
+
+      <hr>
+
+      <p><strong>Subject:</strong> <span id="subject-name"></span></p>
+
+      <p id="question-text"></p>
+      <img id="question-image" style="display:none; max-width:400px;">
+
+      <div id="options-container"></div>
+
+      <hr>
+
+      <div id="explanation-box">
+        <p><strong>Explanation:</strong></p>
+        <p id="explanation-text"></p>
+        <img id="explanation-image" style="display:none; max-width:400px;">
+      </div>
+
+      <hr>
+
+      <button onclick="toggleBookmark()" id="bookmark-btn">☆ Bookmark</button>
+      <a href="/tests/attempts/{{ attempt.id }}/review">← Back to summary</a>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div style="width:320px; border-left:1px solid #ddd; padding-left:20px;">
+
+      <h3>Filters</h3>
+
+      <label>Status</label><br>
+      <select id="status-filter" onchange="applyFilters()" style="width:100%;">
+        <option value="all">All</option>
+        <option value="correct">Correct</option>
+        <option value="wrong">Incorrect</option>
+        <option value="skipped">Skipped</option>
+      </select>
+
+      <br><br>
+
+      <label>Subject</label><br>
+      <select id="subject-filter" onchange="applyFilters()" style="width:100%;">
+        <option value="all">All Subjects</option>
+        {% for s in subjects %}
+          <option value="{{ s.id }}">{{ s.name }}</option>
+        {% endfor %}
+      </select>
+
+      <h3>Questions</h3>
+      <div id="question-list"></div>
+
+    </div>
+
+  </div>
+
+  <script>
+    const ATTEMPT_ID = {{ attempt.id }};
+    const QUESTIONS = {{ questions | tojson }};
+  </script>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/review_test.js"></script>
+
+</body>
+</html>

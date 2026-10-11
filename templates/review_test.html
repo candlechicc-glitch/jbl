@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ attempt.test_name }} — Review</title>
+</head>
+<body>
+  <h1>{{ attempt.test_name }} — Review</h1>
+
+  <hr>
+
+  <h2>Overall</h2>
+  <p>Score: <strong>{{ attempt.score }} / {{ attempt.total_marks }}</strong></p>
+  <p>Correct: <strong style="color:green;">{{ attempt.correct_count }}</strong></p>
+  <p>Wrong: <strong style="color:red;">{{ attempt.wrong_count }}</strong></p>
+  <p>Skipped: <strong>{{ attempt.skipped_count }}</strong></p>
+
+  <hr>
+
+  <h2>By Subject</h2>
+
+  {% if not subjects %}
+    <p>No data available.</p>
+  {% endif %}
+
+  {% for s in subjects %}
+    <div style="border:1px solid #ddd; padding:12px; margin:8px 0;">
+      <h3>{{ s.subject_name }}</h3>
+      <p>
+        Score: <strong>{{ s.score }}</strong> •
+        Correct: <span style="color:green;">{{ s.correct_count }}</span> •
+        Wrong: <span style="color:red;">{{ s.wrong_count }}</span> •
+        Skipped: {{ s.skipped_count }}
+      </p>
+    </div>
+  {% endfor %}
+
+  <hr>
+
+  <a href="/tests/attempts/{{ attempt.id }}/review/answers">
+    <button>Review Answers</button>
+  </a>
+
+  <br><br>
+  <a href="/tests">← Back to tests</a>
+</body>
+</html>

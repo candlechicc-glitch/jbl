@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ topic.name }} — All Questions</title>
+</head>
+<body>
+  <h1>{{ topic.name }} — Review</h1>
+  <p><a href="/topics/{{ topic.id }}/review">← Back to summary</a></p>
+
+  <hr>
+
+  <!-- Stacked list of questions -->
+  <div id="question-list">
+    {% for q in questions %}
+      <div class="question-item" id="q-{{ q.id }}">
+        <button onclick="openQuestion({{ loop.index0 }})" style="text-align:left; width:100%;">
+          Q{{ loop.index }}: {{ q.text[:60] }}{% if q.text|length > 60 %}...{% endif %}
+          {% if q.user_answer %}
+            {% if q.is_correct %}
+              ✅
+            {% else %}
+              ❌
+            {% endif %}
+          {% else %}
+            ⬜
+          {% endif %}
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <hr>
+
+  <!-- Detail view (hidden until a question is clicked) -->
+  <div id="detail-view" style="display:none;">
+    <h2 id="detail-progress"></h2>
+
+    <p id="detail-question-text"></p>
+    <img id="detail-question-image" style="display:none; max-width:400px;">
+
+    <div id="detail-options"></div>
+
+    <div id="detail-explanation-box" style="display:none;">
+      <hr>
+      <p><strong>Explanation:</strong></p>
+      <p id="detail-explanation"></p>
+      <img id="detail-explanation-image" style="display:none; max-width:400px;">
+    </div>
+
+    <hr>
+
+    <button onclick="goPrev()" id="prev-btn">Previous</button>
+    <button onclick="goNext()" id="next-btn">Next</button>
+    <button onclick="toggleBookmark()" id="bookmark-btn">☆ Bookmark</button>
+    <button onclick="closeDetail()">Close</button>
+  </div>
+
+  <!-- Embed data -->
+  <script>
+    const TOPIC_ID = {{ topic.id }};
+    const QUESTIONS = {{ questions | tojson }};
+    const BOOKMARKED_IDS = {{ bookmarked_ids | tojson }};
+    const BACK_URL = "/subjects/{{ topic.subject_id }}/topics";
+  </script>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/review_questions.js"></script>
+</body>
+</html>
