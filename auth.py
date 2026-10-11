@@ -535,37 +535,49 @@ def verify_email_otp_code(email, otp):
         return True
 
 
+import requests  # add this at the top if not already imported
+
 def send_email_otp(to_email, otp):
-    """Send OTP via SMTP. Falls back to console print in dev mode."""
-    if not all([SMTP_HOST, SMTP_USER, SMTP_PASS]):
+    """Send OTP via Resend HTTPS API. Returns True on success."""
+    api_key = os.getenv("RESEND_API_KEY")
+
+    if not api_key:
         print(f"[DEV EMAIL] OTP for {to_email}: {otp}")
         return True
 
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = "Your login code"
-        msg["From"] = SMTP_FROM
-        msg["To"] = to_email
+        r = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": "onboarding@resend.dev",
+                "to": [to_email],
+                "subject": "Your verification code",
+                "html": f"""
+                <html><body style="font-family: sans-serif;">
+                  <p>Your verification code:</p>
+                  <h2 style="letter-spacing: 4px;">{otp}</h2>
+                  <p style="color: #888; font-size: 12px;">
+                    Valid for 5 minutes. Do not share this code.
+                  </p>
+                </body></html>
+                """,
+            },
+            timeout=10,
+        )
 
-        text = f"Your login code is {otp}. Valid for 5 minutes."
-        html = f"""
-        <html><body>
-          <p>Your login code is:</p>
-          <h2 style="font-family:monospace;letter-spacing:4px;">{otp}</h2>
-          <p>Valid for 5 minutes. Do not share this code.</p>
-        </body></html>
-        """
-        msg.attach(MIMEText(text, "plain"))
-        msg.attach(MIMEText(html, "html"))
+        if r.status_code == 200:
+            print(f"[email] Sent to {to_email}")
+            return True
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASS)
-            server.send_message(msg)
-        print(f"[email] OTP sent to {to_email}")
-        return True
+        print(f"[email] FAILED: {r.status_code} {r.text}")
+        return False
+
     except Exception as e:
-        print(f"[email] FAILED: {e}")
+        print(f"[email] FAILED: {type(e).__name__}: {e}")
         return False
 
 
