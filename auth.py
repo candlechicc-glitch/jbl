@@ -3,9 +3,45 @@ import random
 from datetime import datetime, timedelta
 from flask import Blueprint, render_template, session, request, jsonify, redirect
 from werkzeug.security import check_password_hash
+import requests
 from db import db_cursor
 
 auth_bp = Blueprint("auth", __name__)
+
+def send_sms_fast2sms(phone, otp):
+    """Send OTP via Fast2SMS Quick Route. Returns True on success."""
+    api_key = os.getenv("FAST2SMS_API_KEY")
+    if not api_key:
+        print(f"[DEV SMS] OTP for {phone}: {otp}")
+        return True
+
+    # Fast2SMS expects 10-digit numbers — strip +91
+    clean_phone = phone.replace("+91", "").replace(" ", "").strip()
+
+    url = "https://www.fast2sms.com/dev/bulkV2"
+    payload = {
+        "authorization": api_key,
+        "message": f"Your OTP is {otp}. Valid for 5 minutes.",
+        "language": "english",
+        "route": "q",           # 'q' = Quick SMS (no DLT needed)
+        "numbers": clean_phone,
+    }
+    headers = {"cache-control": "no-cache"}
+
+    try:
+        r = requests.get(url, params=payload, headers=headers, timeout=10)
+        data = r.json()
+        if data.get("return") is True:
+            print(f"[SMS] OTP sent to {phone}")
+            return True
+        print(f"[SMS] FAILED: {data}")
+        return False
+    except Exception as e:
+        print(f"[SMS] FAILED: {type(e).__name__}: {e}")
+        return False
+
+
+
 
 
 # ─────────────────────────────────────────────────────────────
@@ -46,6 +82,10 @@ SMTP_FROM = os.getenv("SMTP_FROM", SMTP_USER)
 # ═══════════════════════════════════════════════════════════════
 # PAGE ROUTES
 # ═══════════════════════════════════════════════════════════════
+
+
+
+
 
 @auth_bp.route("/check")
 def check():
@@ -451,19 +491,9 @@ def send_otp():
     otp = str(random.randint(100000, 999999))
     save_otp(phone, otp)
 
-    if twilio_client and TWILIO_PHONE:
-        try:
-            twilio_client.messages.create(
-                body=f"Your OTP is {otp}. Valid for 5 minutes.",
-                from_=TWILIO_PHONE,
-                to=phone,
-            )
-            print(f"[twilio] OTP sent to {phone}")
-        except Exception as e:
-            print(f"[twilio] FAILED: {e}")
-            return jsonify(success=False, message="Failed to send OTP"), 500
-    else:
-        print(f"[DEV] OTP for {phone}: {otp}")
+    # Send via Fast2SMS
+    if not send_sms_fast2sms(phone, otp):
+        return jsonify(success=False, message="Failed to send OTP"), 500
 
     return jsonify(success=True)
 
@@ -830,19 +860,9 @@ def signup_number_send_otp():
     save_signup_number_otp(phone, otp)
 
     # Send via Twilio (or console print in dev)
-    if twilio_client and TWILIO_PHONE:
-        try:
-            twilio_client.messages.create(
-                body=f"Your verification code is {otp}. Valid for 5 minutes.",
-                from_=TWILIO_PHONE,
-                to=phone,
-            )
-            print(f"[twilio] Signup OTP sent to {phone}")
-        except Exception as e:
-            print(f"[twilio] FAILED: {e}")
-            return jsonify(success=False, message="Failed to send OTP"), 500
-    else:
-        print(f"[DEV] Signup OTP for {phone}: {otp}")
+    # Send via Fast2SMS
+    if not send_sms_fast2sms(phone, otp):
+        return jsonify(success=False, message="Failed to send OTP"), 500
 
     return jsonify(success=True)
 
